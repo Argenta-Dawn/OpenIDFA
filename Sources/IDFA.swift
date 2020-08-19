@@ -126,8 +126,8 @@ extension IDFA {
 	}
 
 	static func disk() throws -> String {
-		let attributes = try FileManager.default.attributesOfItem(atPath: FileManager.default.currentDirectoryPath)
-		let diskSize = (attributes[.systemSize] as? String) ?? ""
+		let attributes = try FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
+		let diskSize = (attributes[.systemSize] as? NSNumber)?.stringValue ?? ""
 		return diskSize
 	}
 }
