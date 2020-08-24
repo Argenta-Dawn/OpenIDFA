@@ -4,12 +4,12 @@
 import PackageDescription
 
 let package = Package(
-	name: "OpenIDFA",
-	products: [
-		.library(name: "OpenIDFA", targets: ["OpenIDFA"]),
-	],
-	targets: [
-		.target(name: "OpenIDFA", path: "Sources"),
-		.testTarget(name: "OpenIDFATests", dependencies: ["OpenIDFA"]),
-	]
+    name: "OpenIDFA",
+    products: [
+        .library(name: "OpenIDFA", targets: ["OpenIDFA"]),
+    ],
+    targets: [
+        .target(name: "OpenIDFA", path: "Sources"),
+        .testTarget(name: "OpenIDFATests", dependencies: ["OpenIDFA"]),
+    ]
 )

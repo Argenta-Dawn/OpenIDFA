@@ -5,10 +5,10 @@
 import Foundation
 
 extension IDFA {
-	public enum Error: Swift.Error {
-		case systemBootTime
-		case regionCode
-		case languageCode
-		case systemControl
-	}
+    public enum Error: Swift.Error {
+        case systemBootTime
+        case regionCode
+        case languageCode
+        case systemControl
+    }
 }
