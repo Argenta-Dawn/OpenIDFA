@@ -119,7 +119,12 @@ extension IDFA {
     }
 
     static func systemFileTime() throws -> String {
-        let attributes = try FileManager.default.attributesOfItem(atPath: "/private/var/mobile")
+        #if os(iOS)
+        let path = "/private/var/mobile"
+        #else
+        let path = "/usr/bin"
+        #endif
+        let attributes = try FileManager.default.attributesOfItem(atPath: path)
         let creationDate = (attributes[.creationDate] as? Date) ?? Date(timeIntervalSince1970: 0)
         let modificationDate = (attributes[.modificationDate] as? Date) ?? Date(timeIntervalSince1970: 0)
         return "\(creationDate),\(modificationDate)"
