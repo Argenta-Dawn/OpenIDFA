@@ -119,7 +119,7 @@ extension IDFA {
     }
 
     static func systemFileTime() throws -> String {
-        #if os(iOS)
+        #if os(iOS) && !targetEnvironment(simulator)
         let path = "/private/var/mobile"
         #else
         let path = "/usr/bin"
