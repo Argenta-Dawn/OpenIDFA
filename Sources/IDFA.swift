@@ -12,22 +12,51 @@ import typealias CommonCrypto.CC_LONG
 import func CommonCrypto.CC_MD5
 import var CommonCrypto.CC_MD5_DIGEST_LENGTH
 
-public struct IDFA { private init() {} }
+public enum IDFA {}
 
 public extension IDFA {
-    static func retrieve() throws -> String {
-        let fingerPrintStablePart = "\(systemVersion()),\(try hardwareInfo()),\(try systemFileTime()),\(try disk())"
-        let fingerPrintUnstablePart = "\(try systemBootTime()),\(try regionCode()),\(try languageCode()),\(deviceName())"
+    static func retrieve() throws -> Identification {
+        try Identification(stable: stable(), unstable: unstable())
+    }
 
-        let fingerPrintStablePartMD5_16 = MD5_16(in: fingerPrintStablePart)
-        let fingerPrintUnstablePartMD5_16 = MD5_16(in: fingerPrintUnstablePart)
-        let idfa = (fingerPrintStablePartMD5_16 + fingerPrintUnstablePartMD5_16).enumerated().reduce(into: "") { (result: inout String, tuple: (offset: Int, element: Character)) in
-            if [8, 12, 16, 20].contains(tuple.offset) {
-                result += "-"
-            }
-            result += String(tuple.element)
-        }
-        return idfa
+    static func retrieveValue() throws -> String {
+        let fingerPrintStablePartMD5_16 = try MD5_16(in: stableValue())
+        let fingerPrintUnstablePartMD5_16 = try MD5_16(in: unstableValue())
+        return merge(stableValue: fingerPrintStablePartMD5_16, unstableValue: fingerPrintUnstablePartMD5_16)
+    }
+}
+
+private extension IDFA {
+    static func stable() throws -> Identification.Stable {
+        let systemVersionValue = systemVersion()
+        let hardwareInfoValue = try hardwareInfo()
+        let systemFileTimeValue = try systemFileTime()
+        let diskValue = try disk()
+        return Identification.Stable(
+            systemVersion: systemVersionValue, hardwareInfo: hardwareInfoValue,
+            systemFileTime: systemFileTimeValue, disk: diskValue
+        )
+    }
+
+    static func stableValue() throws -> String {
+        let fingerPrintStablePart = "\(systemVersion()),\(try hardwareInfo()),\(try systemFileTime()),\(try disk())"
+        return fingerPrintStablePart
+    }
+
+    static func unstable() throws -> Identification.Unstable {
+        let systemBootTimeValue = try systemBootTime()
+        let regionCodeValue = try regionCode()
+        let languageCodeValue = try languageCode()
+        let deviceNameValue = deviceName()
+        return Identification.Unstable(
+            systemBootTime: systemBootTimeValue, regionCode: regionCodeValue,
+            languageCode: languageCodeValue, deviceName: deviceNameValue
+        )
+    }
+
+    static func unstableValue() throws -> String {
+        let fingerPrintUnstablePart = "\(try systemBootTime()),\(try regionCode()),\(try languageCode()),\(deviceName())"
+        return fingerPrintUnstablePart
     }
 }
 
@@ -57,10 +86,20 @@ extension IDFA {
         let result = md5String[startIndex..<endIndex]
         return String(result)
     }
+
+    static func merge(stableValue: String, unstableValue: String) -> String {
+        let idfa = (stableValue + unstableValue).enumerated().reduce(into: "") { (result: inout String, tuple: (offset: Int, element: Character)) in
+            if [8, 12, 16, 20].contains(tuple.offset) {
+                result += "-"
+            }
+            result += String(tuple.element)
+        }
+        return idfa
+    }
 }
 
 extension IDFA {
-    static func systemBootTime() throws -> String {
+    static func systemBootTime() throws -> Int {
         var mib = [CTL_KERN, KERN_BOOTTIME]
         var bootTime = timeval()
         var bootTimeSize = MemoryLayout<timeval>.size
@@ -69,7 +108,7 @@ extension IDFA {
             throw Error.systemBootTime
         }
         let second = bootTime.tv_sec / 10000
-        return "\(second)"
+        return second
     }
 
     static func regionCode() throws -> String {
@@ -94,17 +133,17 @@ extension IDFA {
         }
     }
 
-    static func systemVersion() -> String {
+    static func deviceName() -> String {
         #if os(iOS)
-        return UIDevice.current.systemVersion
+        return UIDevice.current.name
         #else
         return ""
         #endif
     }
 
-    static func deviceName() -> String {
+    static func systemVersion() -> String {
         #if os(iOS)
-        return UIDevice.current.name
+        return UIDevice.current.systemVersion
         #else
         return ""
         #endif

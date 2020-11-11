@@ -28,7 +28,7 @@ final class OpenIDFATests: XCTestCase {
     }
 
     func testIDFA() throws {
-        let idfa = try IDFA.retrieve()
+        let idfa = try IDFA.retrieveValue()
         print(idfa)
     }
 
