@@ -10,7 +10,6 @@ import var CommonCrypto.CC_MD5_DIGEST_LENGTH
 enum Hash {}
 
 extension Hash {
-
     static func md5(in: String) -> String {
         let length = Int(CC_MD5_DIGEST_LENGTH)
         let messageData = `in`.data(using: .utf8)!

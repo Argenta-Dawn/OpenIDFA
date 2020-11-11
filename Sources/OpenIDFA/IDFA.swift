@@ -17,7 +17,12 @@ public enum IDFA {}
 
 public extension IDFA {
     static func retrieve() throws -> Identification {
-        try Identification(stable: stable(), unstable: unstable())
+        let stableObject = try stable()
+        let unstableObject = try unstable()
+        return Identification(
+            value: Hash.merge(stableValue: stableObject.value, unstableValue: unstableObject.value),
+            stable: stableObject,
+            unstable: unstableObject)
     }
 }
 
@@ -28,6 +33,7 @@ private extension IDFA {
         let systemFileTimeValue = try systemFileTime()
         let diskValue = try disk()
         return Identification.Stable(
+            value: Hash.MD5_16(in: "\(systemVersionValue),\(hardwareInfoValue),\(systemFileTimeValue),\(diskValue)"),
             systemVersion: systemVersionValue, hardwareInfo: hardwareInfoValue,
             systemFileTime: systemFileTimeValue, disk: diskValue
         )
@@ -39,6 +45,7 @@ private extension IDFA {
         let languageCodeValue = try languageCode()
         let deviceNameValue = deviceName()
         return Identification.Unstable(
+            value: Hash.MD5_16(in: "\(systemBootTimeValue),\(regionCodeValue),\(languageCodeValue),\(deviceNameValue)"),
             systemBootTime: systemBootTimeValue, regionCode: regionCodeValue,
             languageCode: languageCodeValue, deviceName: deviceNameValue
         )

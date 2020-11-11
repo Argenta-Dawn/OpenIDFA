@@ -7,10 +7,10 @@ public struct Identification: Codable {
     public let stable: Stable
     public let unstable: Unstable
 
-    public init(stable: Stable, unstable: Unstable) {
+    public init(value: String, stable: Stable, unstable: Unstable) {
+        self.value = value
         self.stable = stable
         self.unstable = unstable
-        value = Hash.merge(stableValue: stable.value, unstableValue: unstable.value)
     }
 }
 
@@ -23,12 +23,12 @@ extension Identification {
         public let systemFileTime: String
         public let disk: String
 
-        public init(systemVersion: String, hardwareInfo: String, systemFileTime: String, disk: String) {
+        public init(value: String, systemVersion: String, hardwareInfo: String, systemFileTime: String, disk: String) {
+            self.value = value
             self.systemVersion = systemVersion
             self.hardwareInfo = hardwareInfo
             self.systemFileTime = systemFileTime
             self.disk = disk
-            value = Hash.MD5_16(in: "\(systemVersion),\(hardwareInfo),\(systemFileTime),\(disk)")
         }
     }
 }
@@ -42,12 +42,12 @@ extension Identification {
         public let languageCode: String
         public let deviceName: String
 
-        public init(systemBootTime: Int, regionCode: String, languageCode: String, deviceName: String) {
+        public init(value: String, systemBootTime: Int, regionCode: String, languageCode: String, deviceName: String) {
+            self.value = value
             self.systemBootTime = systemBootTime
             self.regionCode = regionCode
             self.languageCode = languageCode
             self.deviceName = deviceName
-            value = Hash.MD5_16(in: "\(systemBootTime),\(regionCode),\(languageCode),\(deviceName)")
         }
     }
 }
