@@ -1,4 +1,5 @@
 @testable import OpenIDFA
+@testable import Identify
 import XCTest
 
 final class OpenIDFATests: XCTestCase {
@@ -18,17 +19,17 @@ final class OpenIDFATests: XCTestCase {
     }
 
     func testMD5() {
-        let md5 = IDFA.md5(in: "IDFA")
+        let md5 = Hash.md5(in: "IDFA")
         print(md5)
     }
 
     func testMD5_16() {
-        let md5_16 = IDFA.MD5_16(in: "IDFA")
+        let md5_16 = Hash.MD5_16(in: "IDFA")
         print(md5_16)
     }
 
     func testIDFA() throws {
-        let idfa = try IDFA.retrieveValue()
+        let idfa = try IDFA.retrieve()
         print(idfa)
     }
 

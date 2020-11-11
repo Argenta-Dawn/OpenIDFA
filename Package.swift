@@ -7,9 +7,13 @@ let package = Package(
     name: "OpenIDFA",
     products: [
         .library(name: "OpenIDFA", targets: ["OpenIDFA"]),
+        .library(name: "Identify", targets: ["Identify"]),
     ],
     targets: [
-        .target(name: "OpenIDFA", path: "Sources"),
+        .target(name: "OpenIDFA", dependencies: [
+            "Identify",
+        ]),
+        .target(name: "Identify"),
         .testTarget(name: "OpenIDFATests", dependencies: ["OpenIDFA"]),
     ]
 )

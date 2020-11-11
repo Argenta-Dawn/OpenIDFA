@@ -10,7 +10,7 @@ public struct Identification: Codable {
     public init(stable: Stable, unstable: Unstable) {
         self.stable = stable
         self.unstable = unstable
-        value = IDFA.merge(stableValue: stable.value, unstableValue: unstable.value)
+        value = Hash.merge(stableValue: stable.value, unstableValue: unstable.value)
     }
 }
 
@@ -28,7 +28,7 @@ extension Identification {
             self.hardwareInfo = hardwareInfo
             self.systemFileTime = systemFileTime
             self.disk = disk
-            value = IDFA.MD5_16(in: "\(systemVersion),\(hardwareInfo),\(systemFileTime),\(disk)")
+            value = Hash.MD5_16(in: "\(systemVersion),\(hardwareInfo),\(systemFileTime),\(disk)")
         }
     }
 }
@@ -47,7 +47,7 @@ extension Identification {
             self.regionCode = regionCode
             self.languageCode = languageCode
             self.deviceName = deviceName
-            value = IDFA.MD5_16(in: "\(systemBootTime),\(regionCode),\(languageCode),\(deviceName)")
+            value = Hash.MD5_16(in: "\(systemBootTime),\(regionCode),\(languageCode),\(deviceName)")
         }
     }
 }

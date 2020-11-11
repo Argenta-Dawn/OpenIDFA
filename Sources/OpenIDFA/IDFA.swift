@@ -4,6 +4,7 @@
 
 import Darwin.sys.sysctl
 import Foundation
+import Identify
 #if os(iOS)
 import CoreTelephony
 import UIKit
@@ -17,12 +18,6 @@ public enum IDFA {}
 public extension IDFA {
     static func retrieve() throws -> Identification {
         try Identification(stable: stable(), unstable: unstable())
-    }
-
-    static func retrieveValue() throws -> String {
-        let fingerPrintStablePartMD5_16 = try MD5_16(in: stableValue())
-        let fingerPrintUnstablePartMD5_16 = try MD5_16(in: unstableValue())
-        return merge(stableValue: fingerPrintStablePartMD5_16, unstableValue: fingerPrintUnstablePartMD5_16)
     }
 }
 
@@ -38,11 +33,6 @@ private extension IDFA {
         )
     }
 
-    static func stableValue() throws -> String {
-        let fingerPrintStablePart = "\(systemVersion()),\(try hardwareInfo()),\(try systemFileTime()),\(try disk())"
-        return fingerPrintStablePart
-    }
-
     static func unstable() throws -> Identification.Unstable {
         let systemBootTimeValue = try systemBootTime()
         let regionCodeValue = try regionCode()
@@ -52,49 +42,6 @@ private extension IDFA {
             systemBootTime: systemBootTimeValue, regionCode: regionCodeValue,
             languageCode: languageCodeValue, deviceName: deviceNameValue
         )
-    }
-
-    static func unstableValue() throws -> String {
-        let fingerPrintUnstablePart = "\(try systemBootTime()),\(try regionCode()),\(try languageCode()),\(deviceName())"
-        return fingerPrintUnstablePart
-    }
-}
-
-// MARK: - MD5
-
-extension IDFA {
-    static func md5(in: String) -> String {
-        let length = Int(CC_MD5_DIGEST_LENGTH)
-        let messageData = `in`.data(using: .utf8)!
-        var digestData = Data(count: length)
-
-        digestData.withUnsafeMutableBytes { digestBytes -> Void in
-            messageData.withUnsafeBytes { messageBytes -> Void in
-                if let messageBytesBaseAddress = messageBytes.baseAddress, let digestBytesBlindMemory = digestBytes.bindMemory(to: UInt8.self).baseAddress {
-                    let messageLength = CC_LONG(messageData.count)
-                    CC_MD5(messageBytesBaseAddress, messageLength, digestBytesBlindMemory)
-                }
-            }
-        }
-        return digestData.map { String(format: "%02hhX", $0) }.joined()
-    }
-
-    static func MD5_16(in: String) -> String {
-        let md5String = md5(in: `in`)
-        let startIndex = md5String.index(md5String.startIndex, offsetBy: 8)
-        let endIndex = md5String.index(md5String.endIndex, offsetBy: -8)
-        let result = md5String[startIndex..<endIndex]
-        return String(result)
-    }
-
-    static func merge(stableValue: String, unstableValue: String) -> String {
-        let idfa = (stableValue + unstableValue).enumerated().reduce(into: "") { (result: inout String, tuple: (offset: Int, element: Character)) in
-            if [8, 12, 16, 20].contains(tuple.offset) {
-                result += "-"
-            }
-            result += String(tuple.element)
-        }
-        return idfa
     }
 }
 
